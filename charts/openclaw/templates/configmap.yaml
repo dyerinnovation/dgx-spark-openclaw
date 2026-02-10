@@ -26,8 +26,13 @@ data:
   openclaw.json: |
     {
       "gateway": {
-        "bind": "loopback",
-        "port": 18789
+        "mode": "local",
+        "port": 18789,
+        "bind": "0.0.0.0",
+        "auth": {
+          "mode": "token",
+          "token": "${OPENCLAW_GATEWAY_TOKEN}"
+        }
       },
       "agents": {
         "defaults": {
@@ -48,10 +53,9 @@ data:
           },
           "channels": {
             "{{ .Values.config.slackChannels.tasks }}": { "allow": true },
-            "{{ .Values.config.slackChannels.approvals }}": { "allow": true },
+            "{{ .Values.config.slackChannels.approvals }}": { "allow": true, "requireMention": true },
             "{{ .Values.config.slackChannels.reports }}": { "allow": true }
-          },
-          "requireMention": true
+          }
         }
       },
       "tools": {

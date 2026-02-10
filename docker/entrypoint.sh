@@ -20,13 +20,8 @@ fi
 if [ ! -f ~/.openclaw/.onboarded ]; then
     openclaw onboard --non-interactive \
         --mode local \
-        --auth-choice apiKey \
-        --anthropic-api-key "$ANTHROPIC_API_KEY" \
-        --gateway-port 18789 \
-        --gateway-bind loopback \
-        --skip-skills \
-        --install-daemon \
-        --daemon-runtime node || echo "Onboard completed with warnings"
+        --auth-choice anthropic-api-key \
+        --anthropic-api-key "$ANTHROPIC_API_KEY" || echo "Onboard completed with warnings"
     touch ~/.openclaw/.onboarded
 fi
 

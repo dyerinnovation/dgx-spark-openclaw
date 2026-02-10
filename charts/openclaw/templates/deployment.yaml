@@ -25,6 +25,9 @@ spec:
           ports:
             - containerPort: 18789
               name: gateway
+          env:
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=4096"
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-secrets
