@@ -21,11 +21,14 @@ ANTHROPIC_SETUP_TOKEN=<paste-token-here>
    - `im:read`, `im:write`, `im:history`
 4. **Install to Workspace** → copy the **Bot User OAuth Token** (`xoxb-...`)
 5. Copy the **Signing Secret** from the **Basic Information** page
-6. Create channels: `#michael-tasks`, `#michael-approvals`, `#michael-reports`
-7. Invite the Michael bot to all three channels (`/invite @Michael`)
-8. Add to `.env`:
+6. **Enable Socket Mode**: **Settings → Socket Mode → Enable**
+   - Generate an **App-Level Token** with `connections:write` scope → copy the token (`xapp-...`)
+7. Create channels: `#michael-tasks`, `#michael-approvals`, `#michael-reports`
+8. Invite the Michael bot to all three channels (`/invite @Michael`)
+9. Add to `.env`:
    ```
    SLACK_BOT_TOKEN=xoxb-...
+   SLACK_APP_TOKEN=xapp-...
    SLACK_SIGNING_SECRET=...
    ```
 

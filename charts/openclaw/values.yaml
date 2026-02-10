@@ -37,6 +37,7 @@ secrets:
   anthropicSetupToken: ""
   anthropicApiKey: ""
   slackBotToken: ""
+  slackAppToken: ""
   slackSigningSecret: ""
   gmailAddress: ""
   gmailAppPassword: ""

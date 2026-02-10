@@ -17,3 +17,65 @@ metadata:
 data:
   soul.md: |
     {{- .Files.Get "soul.md" | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-openclaw-config
+data:
+  openclaw.json: |
+    {
+      "gateway": {
+        "host": "127.0.0.1",
+        "port": 18789
+      },
+      "sandbox": {
+        "mode": "all",
+        "workspace": "rw"
+      },
+      "elevated": {
+        "allowFrom": []
+      },
+      "channels": {
+        "slack": {
+          "enabled": true,
+          "botToken": "${SLACK_BOT_TOKEN}",
+          "appToken": "${SLACK_APP_TOKEN}",
+          "dm": {
+            "enabled": true,
+            "policy": "pairing"
+          },
+          "channels": {
+            "{{ .Values.config.slackChannels.tasks }}": { "allow": true },
+            "{{ .Values.config.slackChannels.approvals }}": { "allow": true },
+            "{{ .Values.config.slackChannels.reports }}": { "allow": true }
+          },
+          "requireMention": true
+        }
+      },
+      "tools": {
+        "allowed": [
+          "read", "write", "edit", "exec", "bash",
+          "browser", "web_fetch", "web_search",
+          "slack", "sessions_list"
+        ],
+        "denied": ["process"],
+        "commandBlacklist": [
+          "rm -rf /", "dd", "mkfs", "shutdown", "reboot"
+        ]
+      },
+      "gmail": {
+        "enabled": false
+      },
+      "logging": {
+        "redactSensitive": "tools",
+        "customRedactionPatterns": [
+          "sk-[a-zA-Z0-9]{20,}",
+          "xoxb-[a-zA-Z0-9-]+",
+          "xapp-[a-zA-Z0-9-]+"
+        ]
+      },
+      "bonjour": {
+        "enabled": false
+      }
+    }

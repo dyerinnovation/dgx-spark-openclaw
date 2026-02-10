@@ -45,6 +45,9 @@ spec:
             - name: soul
               mountPath: /etc/openclaw/soul.md
               subPath: soul.md
+            - name: openclaw-config
+              mountPath: /etc/openclaw/openclaw.json
+              subPath: openclaw.json
             - name: tmp
               mountPath: /tmp
           resources:
@@ -68,5 +71,8 @@ spec:
         - name: soul
           configMap:
             name: {{ .Release.Name }}-soul
+        - name: openclaw-config
+          configMap:
+            name: {{ .Release.Name }}-openclaw-config
         - name: tmp
           emptyDir: {}

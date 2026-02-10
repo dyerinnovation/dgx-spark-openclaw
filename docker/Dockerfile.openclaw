@@ -11,17 +11,21 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install OpenClaw
-# Install OpenClaw — skip interactive setup (configured at runtime via soul.md)
+# Install OpenClaw — skip interactive setup (configured at runtime via config mount)
 RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-setup || \
     (which openclaw && echo "OpenClaw installed, setup skipped" || exit 1)
 
 # Create openclaw user
 RUN useradd -m -s /bin/bash openclaw
+
+# Entrypoint copies mounted config into ~/.openclaw/ then starts gateway
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 USER openclaw
 WORKDIR /home/openclaw
 
 EXPOSE 18789
 
-# Gateway mode — listens for WebSocket connections from Slack/integrations
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["openclaw", "gateway", "--port", "18789"]
