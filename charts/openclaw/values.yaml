@@ -1,9 +1,57 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/dyerinnovation/openclaw
-  tag: latest
+  repository: ghcr.io/openclaw/openclaw
+  tag: "2026.2.9"
   pullPolicy: IfNotPresent
+
+openclaw:
+  bind: lan
+  port: 18789
+  config:
+    gateway:
+      mode: local
+    agents:
+      defaults:
+        model: "anthropic/claude-sonnet-4-5-20250929"
+        timeoutSeconds: 600
+        thinkingDefault: "high"
+        sandbox:
+          mode: "all"
+          workspaceAccess: "rw"
+    channels:
+      slack:
+        enabled: true
+        botToken: "${SLACK_BOT_TOKEN}"
+        appToken: "${SLACK_APP_TOKEN}"
+        dm:
+          enabled: true
+          policy: pairing
+        channels:
+          "#michael-tasks":
+            allow: true
+          "#michael-approvals":
+            allow: true
+            requireMention: true
+          "#michael-reports":
+            allow: true
+    tools:
+      allow:
+        - read
+        - write
+        - edit
+        - exec
+        - browser
+        - web_fetch
+        - web_search
+        - slack
+        - sessions_list
+      deny:
+        - process
+      elevated:
+        enabled: false
+    logging:
+      redactSensitive: tools
 
 service:
   type: ClusterIP
@@ -23,18 +71,15 @@ resources:
     memory: 1Gi
   limits:
     cpu: "2"
-    memory: 2Gi
+    memory: 4Gi
 
 persistence:
   enabled: true
-  size: 10Gi
+  size: 5Gi
   storageClass: local-path
-  mountPath: /home/openclaw
+  mountPath: /home/node/.openclaw
 
-# All sensitive values come from .env → Kubernetes secret
-# These are placeholders; actual values injected at deploy time
 secrets:
-  anthropicSetupToken: ""
   anthropicApiKey: ""
   slackBotToken: ""
   slackAppToken: ""
@@ -43,14 +88,4 @@ secrets:
   gmailAppPassword: ""
   openaiApiKey: ""
   elevenlabsApiKey: ""
-  gatewayToken: ""
-
-config:
-  llmProvider: anthropic
-  llmModel: claude-sonnet-4-5-20250929
-  slackChannels:
-    tasks: "#michael-tasks"
-    approvals: "#michael-approvals"
-    reports: "#michael-reports"
-  gmail:
-    readOnly: true
+  gatewayToken: ""  # Auto-generated if empty

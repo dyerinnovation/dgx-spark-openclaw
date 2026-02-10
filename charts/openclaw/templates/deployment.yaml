@@ -16,14 +16,50 @@ spec:
       labels:
         app: openclaw
         component: gateway
+      annotations:
+        checksum/config: {{ .Values.openclaw.config | toJson | sha256sum }}
     spec:
       automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        - name: init-config
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ["node", "-e"]
+          args:
+            - |
+              const fs = require('fs');
+              const dir = '/home/node/.openclaw';
+              if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+              const configPath = dir + '/openclaw.json';
+              const helmConfig = JSON.parse(fs.readFileSync('/config/openclaw.json', 'utf8'));
+              let existing = {};
+              try { existing = JSON.parse(fs.readFileSync(configPath, 'utf8')); } catch {}
+              const merged = { ...existing, ...helmConfig };
+              fs.writeFileSync(configPath, JSON.stringify(merged, null, 2), { mode: 0o600 });
+              console.log('Config merged:', Object.keys(merged).join(', '));
+              // Copy soul document
+              try {
+                fs.copyFileSync('/soul/soul.md', dir + '/soul.md');
+                console.log('Soul document copied');
+              } catch {}
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          volumeMounts:
+            - name: openclaw-home
+              mountPath: /home/node/.openclaw
+            - name: openclaw-config
+              mountPath: /config
+            - name: soul
+              mountPath: /soul
       containers:
         - name: openclaw
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["node", "openclaw.mjs", "gateway", "--bind", "{{ .Values.openclaw.bind }}", "--port", "{{ .Values.openclaw.port }}"]
           ports:
-            - containerPort: 18789
+            - containerPort: {{ .Values.openclaw.port }}
               name: gateway
           env:
             - name: NODE_OPTIONS
@@ -31,10 +67,7 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-secrets
-            - configMapRef:
-                name: {{ .Release.Name }}-config
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
             runAsGroup: 1000
@@ -44,38 +77,35 @@ spec:
                 - ALL
           volumeMounts:
             - name: openclaw-home
-              mountPath: {{ .Values.persistence.mountPath }}
-            - name: soul
-              mountPath: /etc/openclaw/soul.md
-              subPath: soul.md
-            - name: openclaw-config
-              mountPath: /etc/openclaw/openclaw.json
-              subPath: openclaw.json
+              mountPath: /home/node/.openclaw
             - name: tmp
               mountPath: /tmp
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
-            httpGet:
-              path: /healthz
+            tcpSocket:
               port: gateway
             initialDelaySeconds: 30
             periodSeconds: 30
           readinessProbe:
-            httpGet:
-              path: /healthz
+            tcpSocket:
               port: gateway
             initialDelaySeconds: 10
             periodSeconds: 10
+          startupProbe:
+            tcpSocket:
+              port: gateway
+            failureThreshold: 30
+            periodSeconds: 5
       volumes:
         - name: openclaw-home
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-home
-        - name: soul
-          configMap:
-            name: {{ .Release.Name }}-soul
         - name: openclaw-config
           configMap:
             name: {{ .Release.Name }}-openclaw-config
+        - name: soul
+          configMap:
+            name: {{ .Release.Name }}-soul
         - name: tmp
           emptyDir: {}
