@@ -15,6 +15,7 @@
 
 ## Credentials
 - All secrets in `.env` (never committed) — see `.env.example` for template
+- **Auth**: Uses `ANTHROPIC_SETUP_TOKEN` (not `ANTHROPIC_API_KEY`) for Anthropic auth
 - Helm chart injects secrets via Kubernetes Secret resource
 - SSH access: `ssh jondyer3@spark-b0f2.local`
 
@@ -72,6 +73,9 @@ sudo env KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl exec -n openclaw deploy/op
 - After doctor runs, check `plugins.entries.slack.enabled` is `true` (doctor may disable it)
 - Helm chart uses init-config container to merge ConfigMap into PVC (pattern from chrisbattarbee/openclaw-helm)
 - Research docs: `claude_projects/2026-02-09/3_OpenClaw_Deployment_Research_End.md`, `claude_projects/2026-02-09/4_OpenClaw_Helm_Comparison_Research_End.md`
+- To send Slack messages programmatically, use the Slack API with `SLACK_BOT_TOKEN` (the OpenClaw CLI `gateway call messages.send` syntax differs)
+- Known issue: `missing_scope` warning for `channels:read` — non-blocking, socket mode works
+- Current deployment: Helm revision 3, pod Running 1/1, Slack connected
 
 ## Git Conventions
 - Do NOT include "Co-Authored-By" lines in commit messages
