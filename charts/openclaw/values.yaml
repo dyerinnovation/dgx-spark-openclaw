@@ -13,7 +13,8 @@ openclaw:
       mode: local
     agents:
       defaults:
-        model: "anthropic/claude-sonnet-4-5-20250929"
+        model:
+          primary: "anthropic/claude-opus-4-6"
         timeoutSeconds: 600
         thinkingDefault: "high"
         sandbox:
