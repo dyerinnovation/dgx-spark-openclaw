@@ -12,7 +12,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install OpenClaw
-RUN curl -fsSL https://openclaw.ai/install.sh | bash
+# Install OpenClaw — skip interactive setup (configured at runtime via soul.md)
+RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-setup || \
+    (which openclaw && echo "OpenClaw installed, setup skipped" || exit 1)
 
 # Create openclaw user
 RUN useradd -m -s /bin/bash openclaw
