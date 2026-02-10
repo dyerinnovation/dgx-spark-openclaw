@@ -18,6 +18,15 @@
 - Helm chart injects secrets via Kubernetes Secret resource
 - SSH access: `ssh jondyer3@spark-b0f2.local`
 
+## DGX Spark Remote Commands
+- Use `sshpass` for SSH commands that need sudo (password from `DGX_PASSWORD` in `.env`)
+- Regular commands: `ssh jondyer3@spark-b0f2.local '<command>'`
+- Sudo commands: `sshpass -p 'JDf33nawm3!' ssh jondyer3@spark-b0f2.local 'echo JDf33nawm3! | sudo -S <command>'`
+  - Note: single quotes around the remote command are required to prevent `!` from being interpreted by the local shell
+- KUBECONFIG on Spark: `/etc/rancher/k3s/k3s.yaml` (requires sudo)
+- K3s container runtime is **containerd** (not Docker) — images must be imported via `sudo k3s ctr images import`
+- PATH on Spark: `$HOME/.local/bin:$HOME/.nvm/versions/node/v22.22.0/bin:$PATH`
+
 ## Deployment
 ```bash
 # Build and push OpenClaw image

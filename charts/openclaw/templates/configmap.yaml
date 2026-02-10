@@ -26,15 +26,16 @@ data:
   openclaw.json: |
     {
       "gateway": {
-        "host": "127.0.0.1",
+        "bind": "loopback",
         "port": 18789
       },
-      "sandbox": {
-        "mode": "all",
-        "workspace": "rw"
-      },
-      "elevated": {
-        "allowFrom": []
+      "agents": {
+        "defaults": {
+          "sandbox": {
+            "mode": "all",
+            "workspaceAccess": "rw"
+          }
+        }
       },
       "channels": {
         "slack": {
@@ -54,28 +55,17 @@ data:
         }
       },
       "tools": {
-        "allowed": [
-          "read", "write", "edit", "exec", "bash",
+        "allow": [
+          "read", "write", "edit", "exec",
           "browser", "web_fetch", "web_search",
           "slack", "sessions_list"
         ],
-        "denied": ["process"],
-        "commandBlacklist": [
-          "rm -rf /", "dd", "mkfs", "shutdown", "reboot"
-        ]
-      },
-      "gmail": {
-        "enabled": false
+        "deny": ["process"],
+        "elevated": {
+          "enabled": false
+        }
       },
       "logging": {
-        "redactSensitive": "tools",
-        "customRedactionPatterns": [
-          "sk-[a-zA-Z0-9]{20,}",
-          "xoxb-[a-zA-Z0-9-]+",
-          "xapp-[a-zA-Z0-9-]+"
-        ]
-      },
-      "bonjour": {
-        "enabled": false
+        "redactSensitive": "tools"
       }
     }
