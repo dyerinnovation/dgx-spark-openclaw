@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-egress
+  labels:
+    app: openclaw
+spec:
+  podSelector:
+    matchLabels:
+      app: openclaw
+      component: gateway
+  policyTypes:
+    - Egress
+  egress:
+    # Allow HTTPS (APIs, web research, Slack)
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

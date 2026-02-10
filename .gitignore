@@ -1,0 +1,29 @@
+# Environment and credentials
+.env
+.env.local
+.env.production
+
+# Sensitive files
+DGX-SPARK.md
+huggingface-token.txt
+*.key
+*.token
+*.pem
+credentials.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Helm
+charts/*/charts/
+*.tgz
+
+# Docker
+docker/build/

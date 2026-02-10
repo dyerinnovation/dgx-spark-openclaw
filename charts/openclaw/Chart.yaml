@@ -1,0 +1,13 @@
+apiVersion: v2
+name: openclaw
+description: OpenClaw AI Agent Gateway for Michael
+type: application
+version: 0.1.0
+appVersion: "latest"
+keywords:
+  - openclaw
+  - ai-agent
+  - claude
+maintainers:
+  - name: Jonathan Dyer
+    url: https://github.com/dyerinnovation

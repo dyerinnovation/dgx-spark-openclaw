@@ -1,0 +1,55 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/dyerinnovation/openclaw
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 18789
+
+ingress:
+  enabled: true
+  host: openclaw.spark-b0f2.local
+  path: /
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: local-path
+  mountPath: /home/openclaw
+
+# All sensitive values come from .env → Kubernetes secret
+# These are placeholders; actual values injected at deploy time
+secrets:
+  anthropicSetupToken: ""
+  anthropicApiKey: ""
+  slackBotToken: ""
+  slackSigningSecret: ""
+  gmailAddress: ""
+  gmailAppPassword: ""
+  openaiApiKey: ""
+  elevenlabsApiKey: ""
+  gatewayToken: ""
+
+config:
+  llmProvider: anthropic
+  llmModel: claude-sonnet-4-5-20250929
+  slackChannels:
+    tasks: "#michael-tasks"
+    approvals: "#michael-approvals"
+    reports: "#michael-reports"
+  gmail:
+    readOnly: true

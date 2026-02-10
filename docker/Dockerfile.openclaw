@@ -1,0 +1,25 @@
+FROM debian:bookworm-slim
+
+# OpenClaw runs on ARM64 (DGX Spark is Grace Blackwell)
+# No GPU needed — Claude runs via API
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    git \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install OpenClaw
+RUN curl -fsSL https://openclaw.ai/install.sh | bash
+
+# Create openclaw user
+RUN useradd -m -s /bin/bash openclaw
+USER openclaw
+WORKDIR /home/openclaw
+
+EXPOSE 18789
+
+# Gateway mode — listens for WebSocket connections from Slack/integrations
+CMD ["openclaw", "gateway", "--port", "18789"]

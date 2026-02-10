@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  OPENCLAW_LLM_PROVIDER: {{ .Values.config.llmProvider | quote }}
+  OPENCLAW_LLM_MODEL: {{ .Values.config.llmModel | quote }}
+  SLACK_CHANNEL_TASKS: {{ .Values.config.slackChannels.tasks | quote }}
+  SLACK_CHANNEL_APPROVALS: {{ .Values.config.slackChannels.approvals | quote }}
+  SLACK_CHANNEL_REPORTS: {{ .Values.config.slackChannels.reports | quote }}
+  GMAIL_READ_ONLY: {{ .Values.config.gmail.readOnly | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-soul
+data:
+  soul.md: |
+    {{- .Files.Get "soul.md" | nindent 4 }}
