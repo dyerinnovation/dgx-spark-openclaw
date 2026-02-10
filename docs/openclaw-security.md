@@ -288,65 +288,69 @@ Copy this to `~/.openclaw/openclaw.json5` as the starting configuration:
 
 ```json5
 {
-  // Gateway
+  // Gateway — bind to LAN for K8s service access
   "gateway": {
-    "host": "127.0.0.1",
+    "mode": "local",
+    "host": "0.0.0.0",
     "port": 18789
   },
 
-  // Sandbox — isolate all tool execution
-  "sandbox": {
-    "mode": "all",
-    "workspace": "rw"
+  // Agent defaults — model, sandbox, timeouts
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "anthropic/claude-opus-4-6"
+      },
+      "timeoutSeconds": 600,
+      "thinkingDefault": "high",
+      "sandbox": {
+        "mode": "all",
+        "workspaceAccess": "rw"
+      }
+    }
   },
 
-  // No elevated execution
-  "elevated": {
-    "allowFrom": []
-  },
-
-  // Slack integration
-  "slack": {
-    "dmPolicy": "pairing",
-    "requireMention": true,
-    "allowedChannels": [
-      "#michael-tasks",
-      "#michael-approvals",
-      "#michael-reports"
-    ]
+  // Slack integration (Socket Mode)
+  "channels": {
+    "slack": {
+      "enabled": true,
+      "botToken": "${SLACK_BOT_TOKEN}",
+      "appToken": "${SLACK_APP_TOKEN}",
+      "dm": {
+        "enabled": true,
+        "policy": "pairing"
+      },
+      "channels": {
+        "#michael-tasks": { "allow": true },
+        "#michael-approvals": { "allow": true, "requireMention": true },
+        "#michael-reports": { "allow": true }
+      }
+    }
   },
 
   // Tool permissions
   "tools": {
-    "allowed": [
-      "read", "write", "edit", "exec", "bash",
+    "allow": [
+      "read", "write", "edit", "exec",
       "browser", "web_fetch", "web_search",
       "slack", "sessions_list"
     ],
-    "denied": ["process"],
-    "commandBlacklist": [
-      "rm -rf /", "dd", "mkfs", "shutdown", "reboot"
-    ]
+    "deny": ["process"],
+    "elevated": {
+      "enabled": false
+    }
   },
 
-  // Gmail — DISABLED for initial deployment
-  "gmail": {
-    "enabled": false
-  },
-
-  // Logging
+  // Logging — redact secrets from tool outputs
   "logging": {
-    "redactSensitive": "tools",
-    "customRedactionPatterns": [
-      "sk-[a-zA-Z0-9]{20,}",
-      "xoxb-[a-zA-Z0-9-]+",
-      "xapp-[a-zA-Z0-9-]+"
-    ]
+    "redactSensitive": "tools"
   },
 
-  // Discovery — disabled
-  "bonjour": {
-    "enabled": false
+  // Plugins — Slack enabled
+  "plugins": {
+    "entries": {
+      "slack": { "enabled": true }
+    }
   }
 }
 ```
