@@ -38,23 +38,19 @@ spec:
               const merged = { ...existing, ...helmConfig };
               fs.writeFileSync(configPath, JSON.stringify(merged, null, 2), { mode: 0o600 });
               console.log('Config merged:', Object.keys(merged).join(', '));
-              // Populate workspace files (skip existing to preserve Michael's edits/memory)
+              // Populate workspace files (always overwrite from helm-managed sources)
               const wsDir = dir + '/workspace';
               fs.mkdirSync(wsDir, { recursive: true, mode: 0o700 });
               fs.mkdirSync(wsDir + '/memory', { recursive: true, mode: 0o700 });
               const wsFiles = [
-                { name: 'SOUL.md', src: '/soul/soul.md', overwrite: true },
-                { name: 'BOOTSTRAP.md', src: '/workspace-files/BOOTSTRAP.md', overwrite: true },
-                { name: 'IDENTITY.md', src: '/workspace-files/IDENTITY.md', overwrite: false },
-                { name: 'USER.md', src: '/workspace-files/USER.md', overwrite: false },
-                { name: 'TOOLS.md', src: '/workspace-files/TOOLS.md', overwrite: false },
+                { name: 'SOUL.md', src: '/soul/soul.md' },
+                { name: 'BOOTSTRAP.md', src: '/workspace-files/BOOTSTRAP.md' },
+                { name: 'IDENTITY.md', src: '/workspace-files/IDENTITY.md' },
+                { name: 'USER.md', src: '/workspace-files/USER.md' },
+                { name: 'TOOLS.md', src: '/workspace-files/TOOLS.md' },
               ];
-              wsFiles.forEach(({name, src, overwrite}) => {
+              wsFiles.forEach(({name, src}) => {
                 const dest = wsDir + '/' + name;
-                if (!overwrite && fs.existsSync(dest)) {
-                  console.log('Skipped ' + name + ' (already exists)');
-                  return;
-                }
                 try {
                   fs.copyFileSync(src, dest);
                   console.log('Copied ' + name + ' to workspace');
