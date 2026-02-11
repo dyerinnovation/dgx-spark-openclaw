@@ -81,7 +81,6 @@ persistence:
   mountPath: /home/node/.openclaw
 
 secrets:
-  anthropicSetupToken: ""
   anthropicApiKey: ""
   slackBotToken: ""
   slackAppToken: ""
