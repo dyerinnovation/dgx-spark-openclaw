@@ -18,7 +18,7 @@ openclaw:
         timeoutSeconds: 600
         thinkingDefault: "high"
         sandbox:
-          mode: "all"
+          mode: "none"
           workspaceAccess: "rw"
     channels:
       slack:
