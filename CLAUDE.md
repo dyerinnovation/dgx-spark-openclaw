@@ -27,6 +27,7 @@
 - KUBECONFIG on Spark: `/etc/rancher/k3s/k3s.yaml` (requires sudo)
 - K3s container runtime is **containerd** (not Docker) — images must be imported via `sudo k3s ctr images import`
 - PATH on Spark: `$HOME/.local/bin:$HOME/.nvm/versions/node/v22.22.0/bin:$PATH`
+- **Helm path**: `/home/jondyer3/.local/bin/helm` — `sudo env` does not inherit PATH, so use the full path when running helm with sudo
 
 ## Deployment
 - **Always use git** to deploy changes to Spark — commit, push to GitHub, then pull on Spark. NEVER use `scp`/`rsync` to transfer repo files directly.
