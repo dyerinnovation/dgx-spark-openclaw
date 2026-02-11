@@ -43,15 +43,37 @@ spec:
                 fs.copyFileSync('/soul/soul.md', dir + '/soul.md');
                 console.log('Soul document copied');
               } catch {}
-              // Copy auth-profiles.json into agent dir (agent runtime looks here)
+              // Generate auth-profiles.json from ANTHROPIC_SETUP_TOKEN
+              const token = process.env.ANTHROPIC_SETUP_TOKEN;
               const agentDir = dir + '/agents/main/agent';
               fs.mkdirSync(agentDir, { recursive: true, mode: 0o700 });
-              const authSrc = dir + '/auth-profiles.json';
-              const authDst = agentDir + '/auth-profiles.json';
-              try {
-                fs.copyFileSync(authSrc, authDst);
-                console.log('Auth profiles copied to agent dir');
-              } catch {}
+              if (token) {
+                const authStore = {
+                  version: 1,
+                  profiles: {
+                    'anthropic:manual': {
+                      type: 'token',
+                      provider: 'anthropic',
+                      token: token,
+                      label: 'manual'
+                    }
+                  }
+                };
+                const authJson = JSON.stringify(authStore, null, 2);
+                const authPaths = [dir + '/auth-profiles.json', agentDir + '/auth-profiles.json'];
+                authPaths.forEach(p => fs.writeFileSync(p, authJson, { mode: 0o600 }));
+                console.log('Auth profiles generated with correct format (version 1, type: token)');
+              } else {
+                console.log('WARN: ANTHROPIC_SETUP_TOKEN not set, skipping auth-profiles.json generation');
+                // Still try to copy existing auth-profiles if present
+                try {
+                  fs.copyFileSync(dir + '/auth-profiles.json', agentDir + '/auth-profiles.json');
+                  console.log('Existing auth profiles copied to agent dir');
+                } catch {}
+              }
+          envFrom:
+            - secretRef:
+                name: {{ .Release.Name }}-secrets
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000

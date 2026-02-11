@@ -89,4 +89,5 @@ secrets:
   gmailAppPassword: ""
   openaiApiKey: ""
   elevenlabsApiKey: ""
+  anthropicSetupToken: ""
   gatewayToken: ""  # Auto-generated if empty
