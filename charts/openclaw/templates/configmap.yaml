@@ -12,3 +12,17 @@ metadata:
   name: {{ .Release.Name }}-openclaw-config
 data:
   openclaw.json: {{ .Values.openclaw.config | toJson | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-workspace
+data:
+  IDENTITY.md: |
+    {{- .Files.Get "workspace/IDENTITY.md" | nindent 4 }}
+  USER.md: |
+    {{- .Files.Get "workspace/USER.md" | nindent 4 }}
+  TOOLS.md: |
+    {{- .Files.Get "workspace/TOOLS.md" | nindent 4 }}
+  BOOTSTRAP.md: |
+    {{- .Files.Get "workspace/BOOTSTRAP.md" | nindent 4 }}

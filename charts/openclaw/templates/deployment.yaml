@@ -38,15 +38,28 @@ spec:
               const merged = { ...existing, ...helmConfig };
               fs.writeFileSync(configPath, JSON.stringify(merged, null, 2), { mode: 0o600 });
               console.log('Config merged:', Object.keys(merged).join(', '));
-              // Copy soul document to workspace (OpenClaw expects SOUL.md in workspace dir)
+              // Populate workspace files (skip existing to preserve Michael's edits/memory)
               const wsDir = dir + '/workspace';
               fs.mkdirSync(wsDir, { recursive: true, mode: 0o700 });
-              try {
-                fs.copyFileSync('/soul/soul.md', wsDir + '/SOUL.md');
-                console.log('Soul document copied to workspace/SOUL.md');
-              } catch (e) {
-                console.log('WARN: Failed to copy soul document:', e.message);
-              }
+              fs.mkdirSync(wsDir + '/memory', { recursive: true, mode: 0o700 });
+              const wsFiles = [
+                { name: 'SOUL.md', src: '/soul/soul.md', overwrite: true },
+                { name: 'BOOTSTRAP.md', src: '/workspace-files/BOOTSTRAP.md', overwrite: true },
+                { name: 'IDENTITY.md', src: '/workspace-files/IDENTITY.md', overwrite: false },
+                { name: 'USER.md', src: '/workspace-files/USER.md', overwrite: false },
+                { name: 'TOOLS.md', src: '/workspace-files/TOOLS.md', overwrite: false },
+              ];
+              wsFiles.forEach(({name, src, overwrite}) => {
+                const dest = wsDir + '/' + name;
+                if (!overwrite && fs.existsSync(dest)) {
+                  console.log('Skipped ' + name + ' (already exists)');
+                  return;
+                }
+                try {
+                  fs.copyFileSync(src, dest);
+                  console.log('Copied ' + name + ' to workspace');
+                } catch (e) { console.log('WARN: Failed to copy ' + name + ':', e.message); }
+              });
               // Generate auth-profiles.json from ANTHROPIC_SETUP_TOKEN
               const token = process.env.ANTHROPIC_SETUP_TOKEN;
               const agentDir = dir + '/agents/main/agent';
@@ -88,6 +101,8 @@ spec:
               mountPath: /config
             - name: soul
               mountPath: /soul
+            - name: workspace-files
+              mountPath: /workspace-files
       containers:
         - name: openclaw
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -142,5 +157,8 @@ spec:
         - name: soul
           configMap:
             name: {{ .Release.Name }}-soul
+        - name: workspace-files
+          configMap:
+            name: {{ .Release.Name }}-workspace
         - name: tmp
           emptyDir: {}
