@@ -75,6 +75,7 @@ sudo env KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl exec -n openclaw deploy/op
 - After doctor runs, check `plugins.entries.slack.enabled` is `true` (doctor may disable it)
 - Auth profiles must exist at BOTH `/home/node/.openclaw/auth-profiles.json` AND `/home/node/.openclaw/agents/main/agent/auth-profiles.json` (agent runtime reads from the latter; init-config copies it automatically)
 - Helm chart uses init-config container to merge ConfigMap into PVC (pattern from chrisbattarbee/openclaw-helm)
+- **Soul document**: OpenClaw loads `SOUL.md` (case-sensitive) from `~/.openclaw/workspace/` during bootstrap. Init-config copies `soul.md` from ConfigMap to `workspace/SOUL.md`.
 - Research docs: `claude_projects/2026-02-09/3_OpenClaw_Deployment_Research_End.md`, `claude_projects/2026-02-09/4_OpenClaw_Helm_Comparison_Research_End.md`
 - To send Slack messages programmatically, use the Slack API with `SLACK_BOT_TOKEN` (the OpenClaw CLI `gateway call messages.send` syntax differs)
 - Current deployment: Helm revision 3, pod Running 1/1, Slack connected
