@@ -39,4 +39,5 @@
 
 ### Notes
 - Auth profile is written directly to `/home/node/.openclaw/auth-profiles.json` on the PVC. The `openclaw models auth paste-token` TUI doesn't work non-interactively, so direct file write is the workaround for automated deploys.
+- **Important**: The agent runtime reads auth from `/home/node/.openclaw/agents/main/agent/auth-profiles.json`, NOT the root `.openclaw/` dir. The file must be copied there (see `2_Fix_Agent_Auth` for details).
 - This approach should be documented if auth tokens need rotation in the future.

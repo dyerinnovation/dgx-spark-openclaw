@@ -43,6 +43,15 @@ spec:
                 fs.copyFileSync('/soul/soul.md', dir + '/soul.md');
                 console.log('Soul document copied');
               } catch {}
+              // Copy auth-profiles.json into agent dir (agent runtime looks here)
+              const agentDir = dir + '/agents/main/agent';
+              fs.mkdirSync(agentDir, { recursive: true, mode: 0o700 });
+              const authSrc = dir + '/auth-profiles.json';
+              const authDst = agentDir + '/auth-profiles.json';
+              try {
+                fs.copyFileSync(authSrc, authDst);
+                console.log('Auth profiles copied to agent dir');
+              } catch {}
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
