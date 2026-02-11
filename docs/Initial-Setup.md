@@ -4,10 +4,7 @@
 ```bash
 claude setup-token
 ```
-Copy the output and add to `.env`:
-```
-ANTHROPIC_SETUP_TOKEN=<paste-token-here>
-```
+Copy the output and save to `.env` as `ANTHROPIC_SETUP_TOKEN` for reference. Note: this token is **not** used as an environment variable — it is pasted inside the pod via CLI during deployment. See [Deployment Guide](deployment-guide.md) for details.
 
 ---
 
@@ -15,22 +12,66 @@ ANTHROPIC_SETUP_TOKEN=<paste-token-here>
 
 1. Go to https://api.slack.com/apps → **Create New App** → **From scratch**
 2. Name: `Michael` | Workspace: your workspace (e.g., "Dyer Innovation HQ")
-3. **OAuth & Permissions** → add Bot Token Scopes:
-   - `chat:write`, `chat:write.public`, `channels:read`, `channels:history`
-   - `reactions:read`, `files:write`
-   - `im:read`, `im:write`, `im:history`
-4. **Install to Workspace** → copy the **Bot User OAuth Token** (`xoxb-...`)
-5. Copy the **Signing Secret** from the **Basic Information** page
-6. **Enable Socket Mode**: **Settings → Socket Mode → Enable**
+3. **OAuth & Permissions** → add all Bot Token Scopes:
+
+   | Scope | Purpose |
+   |-------|---------|
+   | `chat:write` | Send messages |
+   | `channels:history` | Read messages in public channels |
+   | `channels:read` | List and get info about channels |
+   | `groups:history` | Read messages in private channels |
+   | `groups:read` | List private channels |
+   | `groups:write` | Manage private channels |
+   | `im:history` | Read DM messages |
+   | `im:read` | List DMs |
+   | `im:write` | Open DMs |
+   | `mpim:history` | Read group DM messages |
+   | `mpim:read` | List group DMs |
+   | `mpim:write` | Open group DMs |
+   | `users:read` | View users |
+   | `app_mentions:read` | Read @mention events |
+   | `reactions:read` | Read emoji reactions |
+   | `reactions:write` | Add emoji reactions |
+   | `pins:read` | Read pinned messages |
+   | `pins:write` | Pin messages |
+   | `emoji:read` | Read custom emoji |
+   | `commands` | Slash commands |
+   | `files:read` | Read files |
+   | `files:write` | Upload files |
+
+4. **Event Subscriptions** → toggle **Enable Events** to ON → expand **Subscribe to bot events** → add:
+
+   | Event | Purpose |
+   |-------|---------|
+   | `app_mention` | When someone @mentions Michael |
+   | `message.channels` | Messages in public channels |
+   | `message.groups` | Messages in private channels |
+   | `message.im` | Direct messages |
+   | `message.mpim` | Group direct messages |
+   | `reaction_added` | When someone adds a reaction |
+   | `reaction_removed` | When someone removes a reaction |
+   | `member_joined_channel` | When someone joins a channel |
+   | `member_left_channel` | When someone leaves a channel |
+   | `channel_rename` | When a channel is renamed |
+   | `pin_added` | When a message is pinned |
+   | `pin_removed` | When a message is unpinned |
+
+   Click **Save Changes**.
+
+5. **Install to Workspace** → copy the **Bot User OAuth Token** (`xoxb-...`)
+6. Copy the **Signing Secret** from the **Basic Information** page
+7. **Enable Socket Mode**: **Settings → Socket Mode → Enable**
    - Generate an **App-Level Token** with `connections:write` scope → copy the token (`xapp-...`)
-7. Create channels: `#michael-tasks`, `#michael-approvals`, `#michael-reports`
-8. Invite the Michael bot to all three channels (`/invite @Michael`)
-9. Add to `.env`:
-   ```
-   SLACK_BOT_TOKEN=xoxb-...
-   SLACK_APP_TOKEN=xapp-...
-   SLACK_SIGNING_SECRET=...
-   ```
+8. Create channels: `#michael-tasks`, `#michael-approvals`, `#michael-reports`
+9. Invite the Michael bot to all three channels (`/invite @Michael`)
+10. Add to `.env`:
+    ```
+    SLACK_BOT_TOKEN=xoxb-...
+    SLACK_APP_TOKEN=xapp-...
+    SLACK_SIGNING_SECRET=...
+    ```
+
+> **Important**: If you later add scopes or events, you must **Reinstall to Workspace** under OAuth & Permissions and update `SLACK_BOT_TOKEN` in `.env` with the new token.
 
 ---
 
@@ -66,14 +107,6 @@ These are already in `.gitignore` but should not remain on disk.
 
 ---
 
-## 6. Deploy (Run With Claude)
+## 6. Deploy
 
-Once all `.env` values are filled, start a new Claude session and say:
-
-> Deploy OpenClaw to the DGX Spark using the Helm chart and .env credentials.
-
-This will:
-1. SSH to the Spark and install OpenClaw
-2. Build + push the Docker image
-3. `helm install` the chart with your secrets
-4. Verify the pod is running and Slack integration works
+Once all `.env` values are filled, follow the [Deployment Guide](deployment-guide.md) for the full procedure including Helm install, post-deploy configuration, and verification.
